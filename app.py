@@ -49,12 +49,12 @@ def anomaly_detection():
     # Flag anomalies
     merged['anomaly'] = (
         (merged['y'] < merged['yhat_lower']) |
+
         (merged['y'] > merged['yhat_upper'])
     )
 
-    # Return only anomalies (or full data if you prefer)
     anomalies = merged[merged['anomaly']].to_dict(orient='records')
-    return jsonify({"anomalies": anomalies})
+    return jsonify({"anomalies": anomalies, "forecast": forecast.to_dict(orient='records'), "merged": merged.to_dict(orient='records')})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
