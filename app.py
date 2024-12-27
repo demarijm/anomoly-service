@@ -57,4 +57,4 @@ def anomaly_detection():
     return jsonify({"anomalies": anomalies, "forecast": forecast.to_dict(orient='records'), "merged": merged.to_dict(orient='records')})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)
