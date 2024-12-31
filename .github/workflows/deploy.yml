@@ -1,0 +1,42 @@
+name: Deploy Flask App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Build Docker Image
+        run: docker build -t your-dockerhub-username/flask-app:latest .
+
+      - name: Push Docker Image
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push your-dockerhub-username/flask-app:latest
+
+      - name: Deploy to Linode
+        run: |
+          ssh -o StrictHostKeyChecking=no root@your-linode-ip << EOF
+          docker pull your-dockerhub-username/flask-app:latest
+          docker stop flask-container || true
+          docker rm flask-container || true
+          docker run -d --name flask-container -p 80:5000 your-dockerhub-username/flask-app:latest
+          EOF
