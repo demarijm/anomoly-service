@@ -13,30 +13,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          python-version: 3.9
-
-      - name: Install Dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
+          registry: ghcr.io
+          username: ${{ secrets.GITHUB_ACTOR }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker Image
-        run: docker build -t your-dockerhub-username/flask-app:latest .
+        run: |
+          docker build -t ghcr.io/demarijm/emx-auto:latest .
 
       - name: Push Docker Image
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-          docker push your-dockerhub-username/flask-app:latest
+        run: docker push ghcr.io/demarijm/emx-auto:latest
 
       - name: Deploy to Linode
         run: |
           ssh -o StrictHostKeyChecking=no root@your-linode-ip << EOF
-          docker pull your-dockerhub-username/flask-app:latest
+          docker pull ghcr.io/demarijm/emx-auto:latest
           docker stop flask-container || true
           docker rm flask-container || true
-          docker run -d --name flask-container -p 80:5000 your-dockerhub-username/flask-app:latest
+          docker run -d --name flask-container -p 80:5000 ghcr.io/demarijm/emx-auto:latest
           EOF
