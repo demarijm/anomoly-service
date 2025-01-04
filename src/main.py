@@ -51,7 +51,7 @@ def anomaly_detection():
         how='left'
     )
 
-    # Flag anomalies
+    # Flag anomalies for alerts (historical part)
     merged['anomaly'] = (
         (merged['y'] < merged['yhat_lower']) |
 

@@ -27,11 +27,17 @@ jobs:
       - name: Push Docker Image
         run: docker push ghcr.io/demarijm/emx-auto:latest
 
+      - name: Install Linode CLI
+        run: |
+          pip install linode-cli
+          linode-cli configure --token ${{ secrets.LINODE_API_TOKEN }}
+      
+
       - name: Deploy to Linode
         run: |
-          ssh -o StrictHostKeyChecking=no root@your-linode-ip << EOF
-          docker pull ghcr.io/demarijm/emx-auto:latest
-          docker stop flask-container || true
-          docker rm flask-container || true
-          docker run -d --name flask-container -p 80:5000 ghcr.io/demarijm/emx-auto:latest
-          EOF
+            linode-cli linodes ssh root@<LINODE_ID> --command "
+            docker pull ghcr.io/demarijm/emx-auto:latest &&
+            docker stop flask-container || true &&
+            docker rm flask-container || true &&
+            docker run -d --name flask-container -p 80:5000 ghcr.io/demarijm/emx-auto:latest
+            "
