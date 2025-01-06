@@ -9,6 +9,9 @@ app = Flask(__name__)
 def health():
     return jsonify({"status": "healthy"})
 
+"""
+This endpoint expects a JSON payload with a list of data points.
+"""
 @app.route('/anomaly', methods=['POST'])
 def anomaly_detection():
     """
